@@ -1,0 +1,7 @@
+__pycache__/
+*.pkl
+.venv/
+dist/
+
+# keep the sentence-page samples (built by words.py, reviewed)
+!tools/word_samples.pkl

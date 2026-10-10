@@ -1,0 +1,525 @@
+{
+  "summary": {
+    "glyphs": 99,
+    "by_action": {
+      "auto-fixed": 23,
+      "auto-fixable": 0,
+      "needs-handwriting": 39,
+      "decide": 1
+    },
+    "by_severity": {
+      "info": 56,
+      "warn": 6,
+      "error": 1
+    },
+    "score": 44.0
+  },
+  "issues": [
+    {
+      "char": "b",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x1.14 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "b",
+      "check": "completed",
+      "severity": "info",
+      "detail": "1 stroke(s) finished to cap",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "d",
+      "check": "completed",
+      "severity": "info",
+      "detail": "1 stroke(s) finished to cap",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "e",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x1.09 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "h",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x1.09 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "h",
+      "check": "completed",
+      "severity": "info",
+      "detail": "2 stroke(s) finished to baseline/cap",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "l",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x0.91 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "m",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x0.90 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "m",
+      "check": "completed",
+      "severity": "info",
+      "detail": "2 stroke(s) finished to baseline",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "r",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x1.09 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "u",
+      "check": "resized",
+      "severity": "warn",
+      "detail": "size differs across 9 samples; more samples will even it out",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "y",
+      "check": "resized",
+      "severity": "warn",
+      "detail": "size differs across 10 samples; more samples will even it out",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "A",
+      "check": "overridden",
+      "severity": "info",
+      "detail": "hand-picked; confirm",
+      "action": "decide"
+    },
+    {
+      "char": "C",
+      "check": "resized",
+      "severity": "warn",
+      "detail": "size differs across 4 samples; more samples will even it out",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "G",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x0.92 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "H",
+      "check": "completed",
+      "severity": "info",
+      "detail": "2 stroke(s) finished to baseline",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "L",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x1.10 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "M",
+      "check": "completed",
+      "severity": "info",
+      "detail": "1 stroke(s) finished to baseline",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "N",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x1.09 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "P",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x0.90 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "S",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x1.11 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "U",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x1.13 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "V",
+      "check": "resized",
+      "severity": "warn",
+      "detail": "size differs across 3 samples; more samples will even it out",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "V",
+      "check": "completed",
+      "severity": "info",
+      "detail": "1 stroke(s) finished to cap",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "X",
+      "check": "completed",
+      "severity": "info",
+      "detail": "1 stroke(s) finished to baseline",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "Z",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x0.92 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "0",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x0.92 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "2",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "only 2 samples in the photos",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "2",
+      "check": "resized",
+      "severity": "warn",
+      "detail": "size corrected by x1.25 from only 2 sample(s)",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "4",
+      "check": "resized",
+      "severity": "warn",
+      "detail": "size differs across 4 samples; more samples will even it out",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "7",
+      "check": "resized",
+      "severity": "info",
+      "detail": "size corrected by x0.85 automatically",
+      "action": "auto-fixed"
+    },
+    {
+      "char": "!",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "\"",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "#",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "$",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "&",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "(",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": ")",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "*",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "+",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "/",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": ":",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": ";",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "<",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "=",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": ">",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "?",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "@",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "[",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "\\",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "]",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "^",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "_",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "0 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "`",
+      "check": "coverage",
+      "severity": "error",
+      "detail": "not in the font file; no glyph to show",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "`",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "0 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "{",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "|",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "}",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "~",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "£",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "¥",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "—",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    },
+    {
+      "char": "€",
+      "check": "low_samples",
+      "severity": "info",
+      "detail": "1 sample(s) for a symbol",
+      "action": "needs-handwriting"
+    }
+  ],
+  "needs_handwriting": [
+    "!",
+    "\"",
+    "#",
+    "$",
+    "&",
+    "(",
+    ")",
+    "*",
+    "+",
+    "/",
+    "2",
+    "4",
+    ":",
+    ";",
+    "<",
+    "=",
+    ">",
+    "?",
+    "@",
+    "C",
+    "V",
+    "[",
+    "\\",
+    "]",
+    "^",
+    "_",
+    "`",
+    "u",
+    "y",
+    "{",
+    "|",
+    "}",
+    "~",
+    "£",
+    "¥",
+    "—",
+    "€"
+  ],
+  "decide": [
+    "A"
+  ],
+  "auto_fixable": [],
+  "auto_fixed": [
+    "0",
+    "7",
+    "G",
+    "H",
+    "L",
+    "M",
+    "N",
+    "P",
+    "S",
+    "U",
+    "V",
+    "X",
+    "Z",
+    "b",
+    "d",
+    "e",
+    "h",
+    "l",
+    "m",
+    "r"
+  ]
+}
