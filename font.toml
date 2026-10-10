@@ -1,0 +1,11 @@
+# font.toml: settings for the font build.
+# Read by `handfont build scans --config font.toml -o dist`
+# and by the release workflow (family names the zip and the release).
+
+# The family name shown in your apps and used in the CSS.
+# Keep it short. Letters, numbers and spaces are fine.
+family = "MyHand"
+
+# Version of your font. Use the same number as your release tag,
+# for example version = "0.1.0" goes with the tag v0.1.0.
+version = "0.1.0"

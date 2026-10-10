@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install handfont
+        run: pip install -e '.[dev]'
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Build printable template
+        run: |
+          mkdir -p dist
+          handfont template -o dist/template.pdf
+
+      - name: Upload template
+        uses: actions/upload-artifact@v4
+        with:
+          name: template
+          path: dist/template.pdf
+          if-no-files-found: error
+
+      - name: Look for scan images
+        id: scans
+        run: |
+          if find scans -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.tif' -o -iname '*.tiff' -o -iname '*.webp' -o -iname '*.bmp' -o -iname '*.heic' \) -print -quit | grep -q .; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No scan images in scans/ yet. Skipping the font build."
+          fi
+
+      - name: Build font from scans
+        if: steps.scans.outputs.found == 'true'
+        run: handfont build scans --config font.toml -o dist/font
+
+      - name: Upload font preview
+        if: steps.scans.outputs.found == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: font-preview
+          path: dist/font
+          if-no-files-found: error

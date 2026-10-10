@@ -1,0 +1,153 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install handfont
+        run: pip install -e '.[dev]'
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Read font.toml and pick the tag
+        id: meta
+        run: |
+          python - <<'EOF' >> "$GITHUB_OUTPUT"
+          import os
+          import sys
+          import tomllib
+
+          with open("font.toml", "rb") as f:
+              cfg = tomllib.load(f)
+          family = str(cfg.get("family", "")).strip()
+          version = str(cfg.get("version", "")).strip()
+          if not family:
+              raise SystemExit("::error::font.toml has no 'family' value")
+          if not version:
+              raise SystemExit("::error::font.toml has no 'version' value")
+          if os.environ.get("GITHUB_REF_TYPE") == "tag":
+              tag = os.environ["GITHUB_REF_NAME"]
+          else:
+              # Manual run from a branch: use the version from font.toml.
+              tag = f"v{version}"
+          print(f"family={family}")
+          print(f"tag={tag}")
+          EOF
+
+      - name: Build printable template
+        run: |
+          mkdir -p dist
+          handfont template -o dist/template.pdf
+
+      - name: Check that scans exist
+        run: |
+          if ! find scans -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.tif' -o -iname '*.tiff' -o -iname '*.webp' -o -iname '*.bmp' -o -iname '*.heic' \) -print -quit | grep -q .; then
+            echo "::error title=No scans::scans/ has no image files. Add your page photos (for example scans/page-1.jpg and scans/page-2.jpg), push, then run the release again. See scans/README.md."
+            exit 1
+          fi
+
+      - name: Build font
+        run: handfont build scans --config font.toml -o dist/font
+
+      - name: Zip the font
+        env:
+          FAMILY: ${{ steps.meta.outputs.family }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          mkdir -p dist/release
+          (cd dist/font && zip -r "$GITHUB_WORKSPACE/dist/release/${FAMILY}-${TAG}.zip" .)
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.family }} ${{ steps.meta.outputs.tag }}
+          fail_on_unmatched_files: true
+          files: |
+            dist/font/*.ttf
+            dist/font/*.otf
+            dist/font/*.woff
+            dist/font/*.woff2
+            dist/font/*.css
+            dist/font/*.png
+            dist/release/*.zip
+            dist/template.pdf
+          body: |
+            ${{ steps.meta.outputs.family }} ${{ steps.meta.outputs.tag }}: your handwriting as a font.
+
+            ## Which file do I need?
+
+            - Computer (Mac, Windows, Linux): the .otf or .ttf file.
+            - Website: the .woff2 file, plus the .css file.
+            - Everything at once: the zip.
+            - Printing a new sheet: template.pdf.
+            - Preview: preview.png shows how the font looks.
+
+            ## macOS
+
+            Double-click the .otf file, then click Install Font.
+            Restart apps that were open.
+
+            ## Windows
+
+            Right-click the .ttf file, then click Install for all users.
+            If asked, allow the change.
+
+            ## Linux
+
+            Copy the file, then refresh the font cache:
+
+            mkdir -p ~/.local/share/fonts
+            cp *.ttf ~/.local/share/fonts/
+            fc-cache -f
+
+            ## Website
+
+            Copy the .woff2 file and the .css file into your site folder.
+            Link the CSS in your page's <head>:
+
+            <link rel="stylesheet" href="MyHand.css">
+
+            Then use the font family name in your CSS.
+
+            ## iPhone and iPad
+
+            There is no double-click install. Use a font installer app from
+            the App Store, or a design app that can import .otf files.
+            Download the .otf file first, then open it with that app.
+
+            ## Android
+
+            There is no system-wide install. Use apps that accept custom
+            fonts. Pick the .ttf or .otf file from your Downloads folder
+            in the app's font settings.
+
+            ## Word, PowerPoint, Google Docs
+
+            Install the .ttf or .otf on your computer first. Word and
+            PowerPoint then show it in the font list.
+            Google Docs cannot use uploaded fonts. Use the font in Word
+            or on your own computer instead.
