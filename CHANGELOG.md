@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.1 — 2026-10-10
+
+### Fixed
+
+- iOS profile: iOS said the fonts were invalid.
+  Each font is now stored under the `Font` key, as iOS expects.
+  Remove the old AnnaHand profile, then install the new one.
+
 ## v0.3.0 — 2026-10-10
 
 First release.
