@@ -1,6 +1,11 @@
 # AnnaHand
 
-To improve the font round by round, see [PIPELINE.md](PIPELINE.md).
+**Download:** the latest release on GitHub has zips for web, desktop,
+iPhone/iPad, Android, Office and design apps.
+
+- Improve the font round by round: [PIPELINE.md](PIPELINE.md)
+- What changed: [CHANGELOG.md](CHANGELOG.md)
+- Session notes: [docs/SESSION-2026-10-10.md](docs/SESSION-2026-10-10.md)
 
 A font made from YedaAnna's own handwriting.
 
@@ -36,7 +41,7 @@ Install:
   `font-family: "AnnaHand";` (or `AnnaHandTyped`, ...).
 - **Google Docs:** cannot use your own fonts.
 
-## What is in it — v0.3
+## What is in it — v0.3.0
 
 - A to Z, a to z, 0 to 9.
 - Most punctuation: `. , ; : ! ? ' " - _ ( ) [ ] { } / \ | ~ ^ @ # & * % + = < >`

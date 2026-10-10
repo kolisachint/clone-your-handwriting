@@ -111,6 +111,7 @@ def norm_scale(x):
     r=target[k]/max(top_h(x),1e-6); return float(np.clip(r,0.80,1.25))
 
 STYLE=ARGS.style
+FONT_VERSION="0.3.0"
 # metrics from the writer's own lines (judge compares glyphs against these)
 L.X_HEIGHT_UNITS=int(round(target['x']/target['cap']*L.CAP_HEIGHT_UNITS))
 # Typed / accessibility get a little more air between letters
@@ -188,7 +189,7 @@ def colon(x):
 def under(x):
     x['base']=x['top']-int(x['cap']*0.08); return x
 synth(':','.',colon); synth('_','—',under)
-paths=build_font(glyphs,ARGS.family,__import__('pathlib').Path(ARGS.out),version="0.2.0")
+paths=build_font(glyphs,ARGS.family,__import__('pathlib').Path(ARGS.out),version=FONT_VERSION)
 print(len(glyphs),"glyphs",STYLE); print("completed strokes:",COMPLETED)
 if ARGS.dump:
     import json
