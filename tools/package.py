@@ -27,7 +27,8 @@ DIST = ROOT / "dist"
 SURFACES = ["web", "desktop", "ios", "android", "office", "design"]
 
 # Order used everywhere (demo, README lists, profile).
-ORDER = ["AnnaHand", "AnnaHandPaper", "AnnaHandTyped", "AnnaHandAccess"]
+ORDER = ["AnnaHand", "AnnaHandPaper", "AnnaHandTyped", "AnnaHandAccess",
+         "AnnaHandNerdMono"]
 
 BLURBS = {
     "AnnaHand": "Handwritten. Your strokes as written, stray ink removed.",
@@ -35,6 +36,8 @@ BLURBS = {
     "AnnaHandTyped": "Smoothed and lighter, with more space. For long text.",
     "AnnaHandAccess": "Bold, wide spacing, slashed zero. "
     "For low vision and small screens.",
+    "AnnaHandNerdMono": "Monospaced, with Nerd Font icons. "
+    "For terminals and code editors.",
 }
 
 SAMPLE = (
@@ -131,6 +134,12 @@ def copy_files(paths, out):
 
 def write_readme(out, text):
     (out / "README.md").write_text(text.strip() + "\n", encoding="utf-8")
+
+
+def copy_licenses(fams, out):
+    """Copy each family's LICENSE* files (e.g. LICENSE-NerdFonts)."""
+    for fam in fams:
+        copy_files(sorted(fam.folder.glob("LICENSE*")), out)
 
 
 def file_list(paths):
@@ -231,7 +240,7 @@ def demo_html(fams):
 <body>
 <main>
   <h1>AnnaHand</h1>
-  <p>Four handwriting styles. Each one shows a sample and every character.</p>
+  <p>{len(fams)} styles. Each one shows a sample and every character.</p>
 {body}
 </main>
 </body>
@@ -243,7 +252,7 @@ def web_readme(fams):
     return f"""
 # AnnaHand for websites
 
-Web fonts for four styles. Open demo.html to see them.
+Web fonts for {len(fams)} styles. Open demo.html to see them.
 
 ## Files
 
@@ -310,6 +319,7 @@ def build_web(fams, out):
                 font = TTFont(fam.source())
                 font.flavor = ext
                 font.save(target)
+    copy_licenses(fams, out)
     (out / "fonts.css").write_text(fonts_css(fams), encoding="utf-8")
     (out / "demo.html").write_text(demo_html(fams), encoding="utf-8")
     write_readme(out, web_readme(fams))
@@ -361,6 +371,7 @@ Look for the names above in the font menu.
 def build_desktop(fams, out):
     copy_files([p for f in fams for p in f.files("otf") + f.files("ttf")],
                out)
+    copy_licenses(fams, out)
     write_readme(out, desktop_readme(fams))
 
 
@@ -399,6 +410,7 @@ def build_ios(fams, out):
     data = plistlib.dumps(profile, fmt=plistlib.FMT_XML, sort_keys=True)
     plistlib.loads(data)  # fail early if the profile is not valid plist
     (out / "AnnaHand.mobileconfig").write_bytes(data)
+    copy_licenses(fams, out)
     write_readme(out, ios_readme(fams))
 
 
@@ -440,6 +452,7 @@ Some apps only show their own fonts. That is up to the app.
 
 def build_android(fams, out):
     copy_files([p for f in fams for p in f.files("ttf")], out)
+    copy_licenses(fams, out)
     write_readme(out, android_readme(fams))
 
 
@@ -472,6 +485,7 @@ Use the .ttf files in this folder.
 
 def build_office(fams, out):
     copy_files([p for f in fams for p in f.files("ttf")], out)
+    copy_licenses(fams, out)
     write_readme(out, office_readme(fams))
 
 
@@ -514,6 +528,7 @@ Use a Word or PowerPoint file if the font must show.
 
 def build_design(fams, out):
     copy_files([p for f in fams for p in f.files("otf")], out)
+    copy_licenses(fams, out)
     write_readme(out, design_readme(fams))
 
 

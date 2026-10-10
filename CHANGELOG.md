@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.4.0 — 2026-10-10
+
+### Added
+
+- AnnaHandNerdMono, a 5th style: AnnaHand in monospace.
+  Every character is the same width (600 of 1000 units);
+  wide letters are squeezed to fit.
+- About 10,000 Nerd Font icons: Powerline, Font Awesome, Devicons,
+  Octicons, Material and more.
+- For terminals (Ghostty, iTerm, Kitty, WezTerm), code editors
+  (VS Code), and prompts (powerlevel10k, starship).
+- Formats: OTF, TTF, WOFF2, WOFF, CSS.
+- Included in every bundle: web, desktop, iOS profile, Android,
+  Office, design apps.
+- New tool: `tools/nerd_mono.py`. Needs `--symbols` with
+  `SymbolsNerdFontMono-Regular.ttf`.
+- Bundles now include each font family's LICENSE file.
+
+### Credits
+
+- Icons from Nerd Fonts (MIT / SIL OFL).
+  License: `fonts/AnnaHandNerdMono/LICENSE-NerdFonts`.
+
 ## v0.3.1 — 2026-10-10
 
 ### Fixed

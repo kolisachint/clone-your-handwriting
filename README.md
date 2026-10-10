@@ -11,11 +11,11 @@ A font made from YedaAnna's own handwriting.
 
 ![preview](previews/preview.png)
 
-## Four styles
+## Five styles
 
 ![styles](previews/styles.png)
 
-All four come from the same handwriting. Only the pen changes.
+The first four come from the same handwriting. Only the pen changes.
 
 1. **AnnaHand** — handwritten. Your strokes as written, stray ink removed.
 2. **AnnaHandPaper** — one even pen line, like a gel pen.
@@ -23,6 +23,30 @@ All four come from the same handwriting. Only the pen changes.
    For long text and documents.
 4. **AnnaHandAccess** — bold, wide spacing, taller small letters,
    0 with a slash so it never looks like O. For low vision and small screens.
+5. **AnnaHandNerdMono** — monospaced AnnaHand. Every character is the same
+   width. Adds about 10,000 Nerd Font icons (Powerline, Font Awesome,
+   Devicons, Octicons, Material and more). For terminals, code editors and
+   prompts like powerlevel10k or starship.
+
+### Terminal and code editors
+
+![AnnaHandNerdMono preview](previews/nerd-mono.png)
+
+Install AnnaHandNerdMono first (see below). Then:
+
+- **Ghostty:** in `~/.config/ghostty/config`, add:
+
+      font-family = AnnaHandNerdMono
+
+- **VS Code:** in settings.json, add:
+
+      "editor.fontFamily": "AnnaHandNerdMono",
+      "terminal.integrated.fontFamily": "AnnaHandNerdMono"
+
+- **iTerm, Kitty, WezTerm:** pick AnnaHandNerdMono in the font setting.
+
+**Restart the terminal after installing.** A terminal that was open
+before the install keeps the old font.
 
 ## Get the font
 
@@ -41,12 +65,14 @@ Install:
   `font-family: "AnnaHand";` (or `AnnaHandTyped`, ...).
 - **Google Docs:** cannot use your own fonts.
 
-## What is in it — v0.3.0
+## What is in it — v0.4.0
 
 - A to Z, a to z, 0 to 9.
 - Most punctuation: `. , ; : ! ? ' " - _ ( ) [ ] { } / \ | ~ ^ @ # & * % + = < >`
 - Symbols: `$ € £ ¥ ₹ —`
 - Missing: the backtick `` ` ``.
+- AnnaHandNerdMono also has the icons (about 10,000) from Nerd Fonts.
+  Their license is in `fonts/AnnaHandNerdMono/LICENSE-NerdFonts`.
 
 ## How it was made
 
@@ -117,6 +143,11 @@ To rebuild (Python 3.10+):
     python make.py ../fonts/AnnaHandPaper AnnaHandPaper --style paper
     python make.py ../fonts/AnnaHandTyped AnnaHandTyped --style typed
     python make.py ../fonts/AnnaHandAccess AnnaHandAccess --style access
+
+AnnaHandNerdMono needs the Nerd Fonts symbols file first
+(`NerdFontsSymbolsOnly.zip` from the Nerd Fonts releases page):
+
+    python nerd_mono.py --symbols SymbolsNerdFontMono-Regular.ttf
 
 `tools/specs.py` says which characters are on which line of which photo.
 New photos need a new entry there.
