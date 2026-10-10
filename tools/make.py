@@ -13,6 +13,7 @@ ap.add_argument("out"); ap.add_argument("family")
 ap.add_argument("--style",default="hand",choices=["raw","hand","paper","typed","access"])
 ap.add_argument("--alphabet-only",action="store_true")
 ap.add_argument("--no-complete",action="store_true")
+ap.add_argument("--dump",default=None,help="write per-glyph facts (json) for the review stage")
 ARGS=ap.parse_args()
 EXCLUDE={("X","IMG_0077.jpg",7),("x","IMG_0077.jpg",7),("A","IMG_0081.jpg",1),("-","IMG_0077.jpg",4)}
 from geometry import deskew, slant, shear
@@ -80,7 +81,7 @@ def medoid(xs):
 @dataclass
 class GB: char:str; ink:np.ndarray; baseline_px:int; px_per_mm:float
 UP=4
-DESC=set("fgjpqyQ,;")
+DESC=set("gjpqyQ,;")   # f sits on the line in this hand (judge: f below baseline)
 FLOAT=set("'\"-~^*=+—<>")
 CAPS=set("ABCDEFGHIJKLMNOPRSTUVWXYZ0123456789")
 XH=set("acemnorsuvwxz")
@@ -110,12 +111,16 @@ def norm_scale(x):
     r=target[k]/max(top_h(x),1e-6); return float(np.clip(r,0.80,1.25))
 
 STYLE=ARGS.style
+# metrics from the writer's own lines (judge compares glyphs against these)
+L.X_HEIGHT_UNITS=int(round(target['x']/target['cap']*L.CAP_HEIGHT_UNITS))
 # Typed / accessibility get a little more air between letters
 L.SIDE_BEARING_UNITS={"raw":60,"hand":60,"paper":60,"typed":70,"access":95}[STYLE]
 L.SPACE_ADVANCE_UNITS={"raw":300,"hand":300,"paper":300,"typed":320,"access":380}[STYLE]
 glyphs=[];chosen={}
 cleaned={}
 COMPLETED=[]
+FACTS={}
+rep=[]
 for ch,xs in sorted(by.items()):
     x=dict(medoid(xs)); chosen[ch]=x
     sc=norm_scale(x); x['cap']=x['cap']/sc
@@ -123,11 +128,16 @@ for ch,xs in sorted(by.items()):
         x['cap']=x['cap']/1.0   # placeholder, x-height boost applied below
     big,sk,w=clean(x['mask'],x.get('line'),x['cap'],UP,bstar=x.get('bstar'),norm=x.get('norm'))
     base_row=(x['base']-x['top']+4)*UP; C=x['cap']*UP
+    rep=[]
     kind=('cap' if ch in CAPS else 'x' if ch in XH else 'asc' if ch in ASC else 'desc' if ch in "gjpqy" else 'other')
     if not ARGS.no_complete and kind!='other':
         big,sk,rep=complete(big,sk,int(round(base_row)),int(round(base_row-C)),int(round(base_row-target['x']*C)),kind)
         if rep: COMPLETED.append((ch,len(rep)))
     cleaned[ch]=(x,big,sk,w)
+    FACTS[ch]=dict(char=ch,samples=len(xs),picked=f"{x['file']}#{x['row']}",src=x.get('src','alpha'),
+        quality=list(map(int,x.get('q',(0,0)))),scale=round(float(sc),3),
+        completed=[dict(target=r['target'],added_px=int(r['added_px'])) for r in rep],
+        overridden=ch in OVERRIDE, kind=kind)
 # one pen width for the whole font (relative to cap height), from the writer's own median
 WREL=float(np.median([w/(x['cap']*UP) for x,_,_,w in cleaned.values()]))
 print("stroke width / cap:",round(WREL,4))
@@ -179,4 +189,8 @@ def under(x):
     x['base']=x['top']-int(x['cap']*0.08); return x
 synth(':','.',colon); synth('_','—',under)
 paths=build_font(glyphs,ARGS.family,__import__('pathlib').Path(ARGS.out),version="0.2.0")
-print(len(glyphs),"glyphs",STYLE); print("completed strokes:",COMPLETED); print(paths)
+print(len(glyphs),"glyphs",STYLE); print("completed strokes:",COMPLETED)
+if ARGS.dump:
+    import json
+    json.dump(dict(style=STYLE,family=ARGS.family,targets={k:round(v,4) for k,v in target.items()},
+                   stroke_rel=round(WREL,4),glyphs=FACTS),open(ARGS.dump,"w"),indent=1,ensure_ascii=False); print(paths)

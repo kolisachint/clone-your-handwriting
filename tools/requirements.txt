@@ -4,3 +4,4 @@ pillow
 potracer
 fonttools[woff]
 scikit-image
+reportlab

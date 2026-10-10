@@ -1,5 +1,7 @@
 # AnnaHand
 
+To improve the font round by round, see [PIPELINE.md](PIPELINE.md).
+
 A font made from YedaAnna's own handwriting.
 
 ![preview](previews/preview.png)

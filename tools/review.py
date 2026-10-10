@@ -10,7 +10,7 @@ S=[("v0.2 (before)","raw","alphabet pages only, tilt and size not fixed"),
 T1="Hope you are well. Thank you so much!"; T2="AKMH 1240 kudo  hello@mail.com"
 W=1500; rh=300
 im=Image.new("RGB",(W,80+rh*len(S)),"white"); d=ImageDraw.Draw(im)
-d.text((40,22),"AnnaHand v0.3 — four styles",font=ImageFont.truetype(B,40),fill=(20,20,20))
+d.text((40,22),"AnnaHand — four styles",font=ImageFont.truetype(B,40),fill=(20,20,20))
 for i,(name,key,desc) in enumerate(S):
     y=80+i*rh; ttf=glob.glob(f"{root}/{key}/*.ttf")[0]; f=ImageFont.truetype(ttf,62)
     d.rectangle([0,y,W,y+rh-8],fill=(246,246,242) if i==0 else (255,255,255))

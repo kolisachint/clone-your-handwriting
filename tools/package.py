@@ -3,7 +3,7 @@
 
 Run from the repo root:
 
-    /tmp/hfv/bin/python tools/package.py
+    python tools/package.py
 
 It reads whatever is in fonts/<Family>/ and rebuilds dist/ from scratch.
 Needs fonttools with woff/woff2 support (pip install "fonttools[woff]").

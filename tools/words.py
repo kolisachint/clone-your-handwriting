@@ -5,7 +5,7 @@ half: rows -> transcript lines -> words -> characters, keeping a word only when
 its ink-group count matches its character count exactly. Output has the same
 sample dict format as extract.py plus key "src": "words".
 
-    cd tools && /tmp/hfv/bin/python words.py
+    cd tools && python words.py
     -> tools/word_samples.pkl, tools/word_sheet.png
 """
 import os, sys, pickle, itertools
