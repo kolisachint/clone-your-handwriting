@@ -375,8 +375,10 @@ def build_ios(fams, out):
     for fam in fams:
         ttf = fam.file("ttf")
         payloads.append({
+            # com.apple.font wants the bytes under "Font", not
+            # "PayloadContent"; iOS rejects the payload as invalid otherwise.
+            "Font": ttf.read_bytes(),
             "Name": ttf.name,
-            "PayloadContent": ttf.read_bytes(),
             "PayloadDescription": f"{fam.name} font",
             "PayloadDisplayName": fam.name,
             "PayloadIdentifier": f"com.annahand.font.{fam.name}",
