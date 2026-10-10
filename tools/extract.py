@@ -1,6 +1,6 @@
 import cv2,numpy as np,json,os
 from PIL import Image
-from seg import inkmask, rows, linekill
+from seg import inkmask, rows, linekill, linebands
 from groups import line_groups
 from lab import merge, split
 from specs import SPECS
@@ -29,7 +29,7 @@ def parse(spec, gs):
     return out
 samples=[]
 for f,x0,x1,rot,rowspec in SPECS:
-    im=load(f,rot); m=inkmask(im); rs=rows(m,x0,x1); K=linekill(im)
+    im=load(f,rot); m=inkmask(im); rs=rows(m,x0,x1); K=linekill(im); LB=linebands(im); BS=cv2.cvtColor(im,cv2.COLOR_BGR2LAB)[...,2]; _g=cv2.cvtColor(im,cv2.COLOR_BGR2GRAY); NM=np.clip(_g.astype(np.float32)/np.maximum(cv2.medianBlur(_g,61).astype(np.float32),1)*255,0,255)
     for r,spec in rowspec.items():
         a,b=rs[r]; gs=line_groups(m,a,b,x0,x1)
         items=parse(spec,gs)
@@ -53,7 +53,7 @@ for f,x0,x1,rot,rowspec in SPECS:
             ys_,xs_=np.where(cm); g=dict(g); 
             if len(ys_):
                 cm=cm[ys_.min():ys_.max()+1,xs_.min():xs_.max()+1]; g['y']+=ys_.min(); g['x']+=xs_.min(); g['h'],g['w']=cm.shape
-            samples.append(dict(raw=g['mask'],char=c,file=f,row=r,mask=cm,top=g['y'],bottom=g['y']+g['h'],base=base,x=g['x']))
+            samples.append(dict(raw=g['mask'],char=c,file=f,row=r,mask=cm,line=LB[g['y']:g['y']+g['h'],g['x']:g['x']+g['w']].copy(),bstar=BS[g['y']:g['y']+g['h'],g['x']:g['x']+g['w']].copy(),norm=NM[g['y']:g['y']+g['h'],g['x']:g['x']+g['w']].copy(),top=g['y'],bottom=g['y']+g['h'],base=base,x=g['x']))
 # scale per file: median cap height of flat-topped caps
 for f in set(s['file'] for s in samples):
     caps=[s['base']-s['top'] for s in samples if s['file']==f and s['char'] in "BDEFHIKLMNPRTUVWXZ"]

@@ -50,3 +50,24 @@ def linekill(im):
     ext=cv2.dilate(lines,cv2.getStructuringElement(cv2.MORPH_RECT,(41,3)))
     kill=(ext>0)&(thick==0)
     return kill
+
+def linebands(im, thick=9, strip=120):
+    """ruled lines (blue and red) as straight bands across the page.
+    Found per vertical strip from the row profile of 'darker than paper',
+    using the paper's own median as reference, then joined strip to strip."""
+    g=cv2.cvtColor(im,cv2.COLOR_BGR2GRAY).astype(np.float32)
+    bg=cv2.medianBlur(g.astype(np.uint8),61).astype(np.float32)
+    dark=np.clip(1-g/np.maximum(bg,1),0,1)
+    H,W=dark.shape; out=np.zeros((H,W),bool)
+    for x0 in range(0,W,strip):
+        sl=dark[:,x0:x0+strip]
+        # row score = median over strip: ink strokes are sparse, lines are continuous
+        prof=np.median(sl,1)
+        prof=np.convolve(prof,np.ones(3)/3,'same')
+        thr=max(0.04,np.percentile(prof,97)*0.35)
+        y=1
+        while y<H-1:
+            if prof[y]>thr and prof[y]>=prof[y-1] and prof[y]>=prof[y+1]:
+                out[max(0,y-thick//2):y+thick//2+1, x0:x0+strip]=True; y+=4
+            else: y+=1
+    return out

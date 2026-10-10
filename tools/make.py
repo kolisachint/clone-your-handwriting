@@ -5,6 +5,13 @@ sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 from handfont.vectorize import trace_glyph
 from handfont.build import build_font
 from handfont import layout as L
+from cleanup import clean
+from strokes import restroke, skeleton
+import argparse
+ap=argparse.ArgumentParser()
+ap.add_argument("out"); ap.add_argument("family")
+ap.add_argument("--style",default="hand",choices=["raw","hand","paper","typed","access"])
+ARGS=ap.parse_args()
 EXCLUDE={("X","IMG_0077.jpg",7),("x","IMG_0077.jpg",7),("A","IMG_0081.jpg",1),("-","IMG_0077.jpg",4)}
 s=[x for x in pickle.load(open("samples.pkl","rb")) if (x['char'],x['file'],x['row']) not in EXCLUDE]
 by=defaultdict(list)
@@ -45,24 +52,62 @@ def norm_scale(x):
     elif c in ASC: k='asc'
     if not k: return 1.0
     r=target[k]/max(h(x),1e-6); return float(np.clip(r,0.85,1.18))
+
+STYLE=ARGS.style
+# Typed / accessibility get a little more air between letters
+L.SIDE_BEARING_UNITS={"raw":60,"hand":60,"paper":60,"typed":70,"access":95}[STYLE]
+L.SPACE_ADVANCE_UNITS={"raw":300,"hand":300,"paper":300,"typed":320,"access":380}[STYLE]
 glyphs=[];chosen={}
+cleaned={}
 for ch,xs in sorted(by.items()):
     x=dict(medoid(xs)); chosen[ch]=x
     sc=norm_scale(x); x['cap']=x['cap']/sc
-    m=x['mask'].astype(np.float32); m=np.pad(m,4)
-    big=cv2.resize(m,None,fx=UP,fy=UP,interpolation=cv2.INTER_CUBIC)
-    big=cv2.GaussianBlur(big,(0,0),UP*0.9)>0.45
+    if STYLE=="access" and ch in XH|set("bdhkltfgjpqy"):
+        x['cap']=x['cap']/1.0   # placeholder, x-height boost applied below
+    cleaned[ch]=(x,)+clean(x['mask'],x.get('line'),x['cap'],UP,bstar=x.get('bstar'),norm=x.get('norm'))
+# one pen width for the whole font (relative to cap height), from the writer's own median
+WREL=float(np.median([w/(x['cap']*UP) for x,_,_,w in cleaned.values()]))
+print("stroke width / cap:",round(WREL,4))
+def ink_for(x,big,sk):
+    pw=WREL*x['cap']*UP
+    if STYLE=="raw":
+        m=np.pad(x['mask'],4).astype(np.float32)
+        return cv2.GaussianBlur(cv2.resize(m,None,fx=UP,fy=UP,interpolation=cv2.INTER_CUBIC),(0,0),UP*0.9)>0.45
+    if STYLE=="hand": return big
+    def ironed(sk,k):
+        m=restroke(sk,pw*0.85).astype(np.float32)
+        m=cv2.GaussianBlur(m,(0,0),UP*k)>0.45
+        return skeleton(m)
+    if STYLE=="paper":
+        return cv2.GaussianBlur(restroke(sk,pw*1.0).astype(np.float32),(0,0),UP*0.7)>0.5
+    if STYLE=="typed":
+        return cv2.GaussianBlur(restroke(ironed(sk,1.0),pw*0.85).astype(np.float32),(0,0),UP*0.7)>0.5
+    if STYLE=="access":
+        return cv2.GaussianBlur(restroke(ironed(sk,1.0),pw*1.45).astype(np.float32),(0,0),UP*0.8)>0.5
+def slash_zero(m,pw):
+    m=m.astype(np.uint8).copy(); ys,xs=np.nonzero(m)
+    y0,y1,x0,x1=ys.min(),ys.max(),xs.min(),xs.max(); cy,cx=(y0+y1)/2,(x0+x1)/2
+    hy,hx=(y1-y0)*0.30,(x1-x0)*0.26
+    cv2.line(m,(int(cx-hx),int(cy+hy)),(int(cx+hx),int(cy-hy)),1,max(2,int(pw)),cv2.LINE_AA)
+    return m>0
+def emit(ch,x,ink):
+    # vertical offset of the padded big bitmap: baseline row
     base=(x['base']-x['top']+4)*UP
     ppm=x['cap']*UP*L.UNITS_PER_MM/L.CAP_HEIGHT_UNITS
-    glyphs.append(trace_glyph(GB(ch,big,int(round(base)),ppm)))
-import copy
+    if STYLE=="access" and ch in LOWER_BOOST:
+        # bigger x-height: scale lowercase 8% about the baseline
+        ppm=ppm/1.08
+    glyphs.append(trace_glyph(GB(ch,ink,int(round(base)),ppm)))
+LOWER_BOOST=set("abcdefghijklmnopqrstuvwxyz")
+for ch,(x,big,sk,w) in cleaned.items():
+    ink=ink_for(x,big,sk)
+    if STYLE=="access" and ch=="0": ink=slash_zero(ink,WREL*x['cap']*UP*1.3)
+    emit(ch,x,ink)
 def synth(ch,src,fn):
     if ch in by or src not in chosen: return
-    x=dict(chosen[src]); x=fn(x); x['char']=ch
-    m=np.pad(x['mask'].astype(np.float32),4)
-    big=cv2.GaussianBlur(cv2.resize(m,None,fx=UP,fy=UP,interpolation=cv2.INTER_CUBIC),(0,0),UP*0.9)>0.45
-    ppm=x['cap']*UP*L.UNITS_PER_MM/L.CAP_HEIGHT_UNITS
-    glyphs.append(trace_glyph(GB(ch,big,int(round((x['base']-x['top']+4)*UP)),ppm)))
+    x=dict(cleaned[src][0]); x=fn(x)
+    big,sk,_=clean(x['mask'],None,x['cap'],UP)
+    emit(ch,x,ink_for(x,big,sk))
 def colon(x):
     d=x['mask']; gap=int(x['cap']*0.35); h,w=d.shape
     m=np.zeros((h*2+gap,w),bool); m[:h]=d; m[h+gap:]=d
@@ -70,8 +115,5 @@ def colon(x):
 def under(x):
     x['base']=x['top']-int(x['cap']*0.08); return x
 synth(':','.',colon); synth('_','—',under)
-out=sys.argv[1] if len(sys.argv)>1 else "out"
-fam=sys.argv[2] if len(sys.argv)>2 else "Anna Hand"
-paths=build_font(glyphs,fam,__import__('pathlib').Path(out),version="0.1.0")
-pickle.dump({k:(v['file'],v['row']) for k,v in chosen.items()},open(os.path.join(out,"chosen.pkl"),"wb"))
-print(len(glyphs),"glyphs"); print(paths)
+paths=build_font(glyphs,ARGS.family,__import__('pathlib').Path(ARGS.out),version="0.2.0")
+print(len(glyphs),"glyphs",STYLE); print(paths)
