@@ -11,9 +11,22 @@ import argparse
 ap=argparse.ArgumentParser()
 ap.add_argument("out"); ap.add_argument("family")
 ap.add_argument("--style",default="hand",choices=["raw","hand","paper","typed","access"])
+ap.add_argument("--alphabet-only",action="store_true")
+ap.add_argument("--no-complete",action="store_true")
 ARGS=ap.parse_args()
 EXCLUDE={("X","IMG_0077.jpg",7),("x","IMG_0077.jpg",7),("A","IMG_0081.jpg",1),("-","IMG_0077.jpg",4)}
-s=[x for x in pickle.load(open("samples.pkl","rb")) if (x['char'],x['file'],x['row']) not in EXCLUDE]
+from geometry import deskew, slant, shear
+from complete import complete
+BAD_ROWS={("IMG_0080.jpg",208)}           # word row mis-aligned by words.py
+EXCLUDE|={("V","IMG_0080.jpg",200)}
+raw=pickle.load(open("samples.pkl","rb"))
+if os.path.exists("word_samples.pkl") and not ARGS.alphabet_only:
+    raw+=pickle.load(open("word_samples.pkl","rb"))
+s=[]
+for x in raw:
+    if (x['char'],x['file'],x['row']) in EXCLUDE or (x['file'],x['row']) in BAD_ROWS: continue
+    x=deskew(x); x['slope']=0.0                 # row tilt removed
+    s.append(x)
 by=defaultdict(list)
 for x in s: by[x['char']].append(x)
 def canon(x,N=64):
@@ -25,8 +38,42 @@ def canon(x,N=64):
     y0=max(0,top); m=m[y0-top:]; hh=min(m.shape[0],c.shape[0]-y0); ww=min(ww,N-max(0,x0))
     c[y0:y0+hh,max(0,x0):max(0,x0)+ww]=m[:hh,max(0,-x0):max(0,-x0)+ww]
     return cv2.GaussianBlur(cv2.dilate(c,np.ones((3,3))),(5,5),0)
+from strokes import _nbrs as _nb
+# letters made of several separate marks
+EXPECT={'i':2,'j':2,'!':2,'?':2,';':2,':':2,'%':3,'"':2,'=':2}
+# capital I: the alphabet form (with bars) keeps it apart from l
+PREFER_ALPHA=set("I")
+# natural t is a cross (+-like); clear styles use the textbook t
+PREFER_ALPHA_CLEAR=set("tgy")
+# manager review: hand-picked copies where the automatic pick was a hurried one
+OVERRIDE={'A':[('IMG_0077.jpg',0)]}
+def _quality(x):
+    """(pieces, loose ends) after cleanup. Hurried copies have stray pieces or
+    extra loose ends (stubs, overshoots)."""
+    big,sk,_=clean(x['mask'],x.get('line'),x['cap'],2,bstar=x.get('bstar'),norm=x.get('norm'))
+    pieces=cv2.connectedComponents(big.astype(np.uint8),connectivity=8)[0]-1
+    ys,xs_=np.nonzero(sk); ends=sum(1 for y,xx in zip(ys,xs_) if len(_nb(sk,y,xx))==1)
+    return pieces,ends
 def medoid(xs):
-    if len(xs)<3: return max(xs,key=lambda x:x['mask'].sum()) if len(xs)==2 and False else xs[0] if len(xs)==1 else xs[int(np.argmax([x['file']=='IMG_0077.jpg' for x in xs]))]
+    """the writer's most typical copy: keep copies with the usual number of
+    pieces (so i keeps its dot), prefer fewer loose ends, then pick the one
+    closest to all the others."""
+    if len(xs)==1: return xs[0]
+    for x in xs:
+        if 'q' not in x: x['q']=_quality(x)
+    ch=xs[0]['char']
+    if ch in PREFER_ALPHA or (ch in PREFER_ALPHA_CLEAR and ARGS.style in ('typed','access')):
+        a=[x for x in xs if x.get('src')!='words']; xs=a or xs
+    for f,r in OVERRIDE.get(ch,[]):
+        for x in xs:
+            if x['file']==f and x['row']==r: return x
+    P=[x['q'][0] for x in xs]
+    if ch in EXPECT and EXPECT[ch] in P: mode=EXPECT[ch]
+    else: mode=max(set(P),key=lambda p:(P.count(p),-p))
+    xs=[x for x in xs if x['q'][0]==mode]
+    emin=min(x['q'][1] for x in xs)
+    xs=[x for x in xs if x['q'][1]<=emin+1]
+    if len(xs)<3: return min(xs,key=lambda x:(x['q'][1],-x['mask'].sum()))
     C=[canon(x) for x in xs]
     D=[[np.abs(a-b).sum() for b in C] for a in C]
     return xs[int(np.argmin(np.sum(D,1)))]
@@ -45,13 +92,22 @@ def h(x): return (x['base']-x['top'])/x['cap']
 def med(cs): return float(np.median([h(x) for c in cs for x in by.get(c,[])]))
 target={'cap':med(CAPS),'x':med(XH),'asc':med(ASC)}
 print("target heights (rel. to cap)",target)
+# lowercase whose top is at x-height but which are not in XH
+XH_TOP=XH|set("gjpqy")   # bodies of descenders sit at x-height too (top = x-height)
+def top_h(x): return (x['base']-x['top'])/x['cap']
+target['xtop']=float(np.median([top_h(x) for c in "gpqy" for x in by.get(c,[])]))
 def norm_scale(x):
+    """scale so the letter's top lands on its group's line (cap / x-height /
+    ascender). Hurried letters that came out small or big are pulled to the
+    writer's own average; shapes are not changed. Clamp so nothing is
+    distorted beyond +-25%."""
     c=x['char']; k=None
     if c in CAPS: k='cap'
     elif c in XH: k='x'
     elif c in ASC: k='asc'
+    elif c in "gpqy": k='xtop'
     if not k: return 1.0
-    r=target[k]/max(h(x),1e-6); return float(np.clip(r,0.85,1.18))
+    r=target[k]/max(top_h(x),1e-6); return float(np.clip(r,0.80,1.25))
 
 STYLE=ARGS.style
 # Typed / accessibility get a little more air between letters
@@ -59,12 +115,19 @@ L.SIDE_BEARING_UNITS={"raw":60,"hand":60,"paper":60,"typed":70,"access":95}[STYL
 L.SPACE_ADVANCE_UNITS={"raw":300,"hand":300,"paper":300,"typed":320,"access":380}[STYLE]
 glyphs=[];chosen={}
 cleaned={}
+COMPLETED=[]
 for ch,xs in sorted(by.items()):
     x=dict(medoid(xs)); chosen[ch]=x
     sc=norm_scale(x); x['cap']=x['cap']/sc
     if STYLE=="access" and ch in XH|set("bdhkltfgjpqy"):
         x['cap']=x['cap']/1.0   # placeholder, x-height boost applied below
-    cleaned[ch]=(x,)+clean(x['mask'],x.get('line'),x['cap'],UP,bstar=x.get('bstar'),norm=x.get('norm'))
+    big,sk,w=clean(x['mask'],x.get('line'),x['cap'],UP,bstar=x.get('bstar'),norm=x.get('norm'))
+    base_row=(x['base']-x['top']+4)*UP; C=x['cap']*UP
+    kind=('cap' if ch in CAPS else 'x' if ch in XH else 'asc' if ch in ASC else 'desc' if ch in "gjpqy" else 'other')
+    if not ARGS.no_complete and kind!='other':
+        big,sk,rep=complete(big,sk,int(round(base_row)),int(round(base_row-C)),int(round(base_row-target['x']*C)),kind)
+        if rep: COMPLETED.append((ch,len(rep)))
+    cleaned[ch]=(x,big,sk,w)
 # one pen width for the whole font (relative to cap height), from the writer's own median
 WREL=float(np.median([w/(x['cap']*UP) for x,_,_,w in cleaned.values()]))
 print("stroke width / cap:",round(WREL,4))
@@ -116,4 +179,4 @@ def under(x):
     x['base']=x['top']-int(x['cap']*0.08); return x
 synth(':','.',colon); synth('_','—',under)
 paths=build_font(glyphs,ARGS.family,__import__('pathlib').Path(ARGS.out),version="0.2.0")
-print(len(glyphs),"glyphs",STYLE); print(paths)
+print(len(glyphs),"glyphs",STYLE); print("completed strokes:",COMPLETED); print(paths)

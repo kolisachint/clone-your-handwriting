@@ -53,7 +53,7 @@ for f,x0,x1,rot,rowspec in SPECS:
             ys_,xs_=np.where(cm); g=dict(g); 
             if len(ys_):
                 cm=cm[ys_.min():ys_.max()+1,xs_.min():xs_.max()+1]; g['y']+=ys_.min(); g['x']+=xs_.min(); g['h'],g['w']=cm.shape
-            samples.append(dict(raw=g['mask'],char=c,file=f,row=r,mask=cm,line=LB[g['y']:g['y']+g['h'],g['x']:g['x']+g['w']].copy(),bstar=BS[g['y']:g['y']+g['h'],g['x']:g['x']+g['w']].copy(),norm=NM[g['y']:g['y']+g['h'],g['x']:g['x']+g['w']].copy(),top=g['y'],bottom=g['y']+g['h'],base=base,x=g['x']))
+            samples.append(dict(raw=g['mask'],char=c,file=f,row=r,mask=cm,line=LB[g['y']:g['y']+g['h'],g['x']:g['x']+g['w']].copy(),bstar=BS[g['y']:g['y']+g['h'],g['x']:g['x']+g['w']].copy(),norm=NM[g['y']:g['y']+g['h'],g['x']:g['x']+g['w']].copy(),top=g['y'],bottom=g['y']+g['h'],base=base,x=g['x'],slope=float(k)))
 # scale per file: median cap height of flat-topped caps
 for f in set(s['file'] for s in samples):
     caps=[s['base']-s['top'] for s in samples if s['file']==f and s['char'] in "BDEFHIKLMNPRTUVWXZ"]
