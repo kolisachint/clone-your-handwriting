@@ -107,7 +107,7 @@ pipeline.py reads these keys. Anything else is ignored.
   (or `findings`, `checks`, `issues`, `results`). It reads each item's
   `category`, `outcome`, `action`, `status` or `bucket` field.
 
-## For the bot (hoo): run a round with Haiku subagents
+## For the bot: run a round with Haiku subagents
 
 Use this when the user asks for a round. Use the "fast" category for workers.
 

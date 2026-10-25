@@ -7,7 +7,10 @@ iPhone/iPad, Android, Office and design apps.
 - What changed: [CHANGELOG.md](CHANGELOG.md)
 - Session notes: [docs/SESSION-2026-10-10.md](docs/SESSION-2026-10-10.md)
 
-A font made from YedaAnna's own handwriting.
+A font made from Anna's own handwriting. Anna is the example writer for
+**Clone Your Handwriting**: a tool anyone can use to turn photos of their
+handwriting into fonts. Design: [docs/DESIGN.md](docs/DESIGN.md).
+Plan: [docs/ROADMAP.md](docs/ROADMAP.md). Guide for agents: [AGENTS.md](AGENTS.md).
 
 ![preview](previews/preview.png)
 

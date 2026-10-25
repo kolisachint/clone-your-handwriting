@@ -1,6 +1,6 @@
 # Design: Clone Your Handwriting
 
-Status: **draft v2, decisions recorded**. No code changes until this is agreed.
+Status: **agreed design (v3)**. Implementation follows `docs/ROADMAP.md`.
 Date: 2026-10-25. Base: `main` at v0.4.0 (AnnaHand).
 
 ## 0. Decisions (2026-10-25)
@@ -14,9 +14,13 @@ Date: 2026-10-25. Base: `main` at v0.4.0 (AnnaHand).
 | D5 | Personal data | **Remove every personal item**. Existing photos are removed; the owner supplies new photos for the next phase (section 8) |
 | D6 | Mono / Nerd Font | **Dropped**. Handwriting is not monospaced. AnnaHandNerdMono is removed after v0.4.0 |
 | D7 | Agents | **Opt-in** in the template repo; the pipeline works without them |
-| D8 | Charset v1 | ASCII 94 + `₹ € £ ¥ —` (Latin-Ext accents come next). *Assumed from "yes"; confirm* |
+| D8 | Charset v1 | ASCII 94 + `₹ € £ ¥ —`. Latin-Ext accents come next |
 | D9 | Built fonts | Example fonts are **committed and published as release zips**, so they work as both showcase and test fixture |
 | D10 | Templates | Specify every template: writer kit, template repo, issue/PR templates, contributing, license, quality bar (sections 6–10) |
+| P1 | Git history | **Leave history as is.** No rewrite. Personal items are removed from the current tree only |
+| P2 | Example photo license | **MIT** (owner's choice) |
+| P3 | Round-1 files | **Remove** `iterations/round-1/` with the old photos |
+| P4 | Maintainer contact | **GitHub Discussions** |
 
 ## 1. Goal
 
@@ -230,7 +234,7 @@ adds it. Nothing in the pipeline depends on them.
 | `writers/anna/fonts/OFL.txt` | SIL OFL 1.1 for the example fonts |
 | `CONTRIBUTING.md` | Setup; how to run tests; the golden-test rule; what goes upstream vs your own repo; never commit personal photos; commit style; DCO sign-off (`git commit -s`) |
 | `CODE_OF_CONDUCT.md` | Contributor Covenant 2.1 |
-| `SECURITY.md` | How to report; no pickle/eval of contributed data; where photos go |
+| `SECURITY.md` | How to report (GitHub private vulnerability reporting; questions in Discussions); no pickle/eval of contributed data; where photos go |
 | `docs/privacy.md` | What counts as personal; EXIF; practice text rules; consent for fixtures/gallery |
 | `docs/quality.md` | Section 10 in full |
 | `docs/writer-guide.md` | Kit, photo tips, reading the report, the 4 outcome groups |
@@ -239,7 +243,7 @@ adds it. Nothing in the pipeline depends on them.
 | `.github/ISSUE_TEMPLATE/glyph.yml` | Character, style, screenshot, expected vs actual, outcome group guess |
 | `.github/ISSUE_TEMPLATE/style.yml` | New style proposal: purpose, preview, accessibility notes |
 | `.github/ISSUE_TEMPLATE/gallery.yml` | Repo link, font license, consent checkbox, quality tier |
-| `.github/ISSUE_TEMPLATE/config.yml` | Discussions link for questions |
+| `.github/ISSUE_TEMPLATE/config.yml` | Questions and handovers go to GitHub Discussions (P4) |
 | `.github/PULL_REQUEST_TEMPLATE.md` | What/why; outcome group affected; golden test diff; preview before/after; checklist (tests, docs, no personal data, DCO) |
 | `.github/CODEOWNERS` | Engine areas → maintainers; `writers/anna/` → owner |
 | `.github/labels.yml` | `auto-fixed`, `fixable-in-code`, `needs-handwriting`, `your-decision`, `engine`, `style`, `capture`, `good first issue` |
@@ -285,20 +289,17 @@ photos were re-encoded through Discord.
 | Photos | `handwriting/2026-10-10/*.jpg` | **Remove**; new photos from the owner in Phase 2 |
 | Samples cut from photos | `tools/word_samples.pkl` | Remove (rebuilt from new photos, as PNG + JSON) |
 | Fonts and previews from old photos | `fonts/`, `previews/` | Keep until rebuilt from new photos, then replace (the v0.4.0 release stays as it was) |
-| Facts with old file names | `iterations/round-1/*` | Keep as history, or remove with the photos (owner's call) |
+| Facts with old file names | `iterations/round-1/*` | Remove with the photos (P3) |
 | Dummy phone, date, price, email | `words.py:60-61,78`, `prev.py:6`, `review.py:10` | Replace with `555-0100`, `example.com` and a neutral date |
 | Discord handle in writer instructions | `handover.py:45,97`, `PIPELINE.md:110` | "Send it to the project maintainer" / `@example` |
 | PDF author metadata | `handover.py:355`, `write-next.pdf` | Author = "Clone Your Handwriting"; regenerate |
 | PDF creation time zone | `write-next.pdf` | Write PDFs without CreationDate (reproducible builds) |
-| Commit identity | Git history: a local machine hostname as committer email on ~10 commits | Optional: set a GitHub noreply email from now on; rewriting history is a separate decision |
-| Old content in history | Photos, real name, dummy strings in past commits | **Decision P1** |
+| Commit identity | Git history: a local machine hostname as committer email on ~10 commits | Use a GitHub noreply email from now on; history is left as is (P1) |
+| Old content in history | Photos, real name, dummy strings in past commits | Left as is (P1) |
 
-**Decision P1: rewrite git history?** Deleting files from `main` does not
-remove them from past commits, forks or clones. If the old photos or the real
-name must be gone entirely, run `git filter-repo` on a fresh clone, force-push
-every branch and tag, and re-create the v0.3.x/v0.4.0 releases. That breaks
-existing clones and PR links. Recommendation: **yes, once, in Phase 0 before
-any announcement**. It needs your explicit go-ahead at the time.
+**History (P1).** Past commits are left as they are. Deleting files from the
+current tree does not remove them from history, forks or clones; the owner
+accepted this. Only new commits must be free of personal data.
 
 Engine safeguards so this does not recur: `cyh add` strips EXIF; prompts contain
 only dummy data; `cyh check --privacy` warns on emails or phone patterns in
@@ -311,7 +312,7 @@ only dummy data; `cyh check --privacy` warns on emails or phone patterns in
 | Engine code, workflows, templates | MIT | Root `LICENSE` |
 | Example fonts (AnnaHand family) | OFL-1.1 | Name table IDs 0, 13, 14 filled; `OFL.txt` shipped in every zip |
 | A user's own fonts | Their choice; OFL-1.1 default in the template | `writer.yaml: font_license` |
-| Example photos (new) | **Decision P2**: CC-BY-4.0, or "all rights reserved, for this project only" | Never required upstream for other writers |
+| Example photos (new) | MIT (P2) | Never required upstream for other writers |
 | Bundled preview font | Its own license (e.g. DejaVu/Bitstream Vera) | Shipped in `cyh/assets/fonts/` with its license |
 | Contributions | MIT via DCO sign-off | No CLA |
 
@@ -361,7 +362,7 @@ AnnaHand round 1 scored 44, so it is not yet at Preview. Reaching
 
 | Phase | Scope | Exit |
 |---|---|---|
-| **0. Hygiene + privacy** | MIT LICENSE; one version source; remove macOS and `/tmp` paths; bundle preview font; fixtures into `tests/`; dead experiments to `tools/dev/`; **drop Nerd Mono**; privacy fixes (section 8); remove old photos; P1 history rewrite if approved | CI green, no skips; privacy check clean |
+| **0. Hygiene + privacy** | MIT LICENSE; one version source; remove macOS and `/tmp` paths; bundle preview font; fixtures into `tests/`; dead experiments to `tools/dev/`; **drop Nerd Mono**; privacy fixes (section 8); remove old photos and round-1 files | CI green, no skips; privacy check clean |
 | **1. Engine refactor** | `cyh` package + CLI; `writer.yaml`, `overrides.yaml`; PNG+JSON samples; parameterised package/handover/preview; move to `writers/anna/` | `cyh round --writer anna` reproduces current AnnaHand within tolerance (from cached samples) |
 | **2. Capture** | Template kit + scan; freeform kit + generalised alignment; `ink.py`; `cyh check`. **Owner supplies new photos** with both kits | New AnnaHand built only from new photos; Example tier |
 | **3. Template repo** | `template-repo/`, `round.yml`, release, private default, engine pinning | A new user gets from template to round-1 PR with no local install |
@@ -369,11 +370,11 @@ AnnaHand round 1 scored 44, so it is not yet at Preview. Reaching
 
 ## 12. Still open
 
-- **P1** Rewrite git history to purge old photos and name (recommended: yes, Phase 0).
-- **P2** License for the new example photos (CC-BY-4.0 vs project-only).
-- **D8** Confirm the v1 charset reading (ASCII + `₹ € £ ¥ —`; accents next).
-- Keep or remove `iterations/round-1/` history once the photos are gone.
-- Maintainer contact for writer instructions and SECURITY.md (an email or GitHub Discussions).
+Nothing blocks Phase 0. Decided later, in their phases:
+
+- Bundled preview font choice (DejaVu Sans or similar), Phase 0.
+- Exact PyPI availability of `clone-your-handwriting`, Phase 1.
+- Template paper sizes beyond A4 and Letter, Phase 2.
 
 ## Appendix: hard-coding audit (condensed)
 
